@@ -1,5 +1,7 @@
 .vscode/
 target/
 tmp/
+.venv/
 
 Cargo.lock
+.python-version
