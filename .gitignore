@@ -3,5 +3,11 @@ target/
 tmp/
 .venv/
 
+user/*.asm
+
 Cargo.lock
 .python-version
+
+link_app.S
+os*.asm
+os*.elf
