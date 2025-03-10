@@ -6,7 +6,9 @@ use core::arch::global_asm;
 #[macro_use]
 mod console;
 pub mod batch;
+mod config;
 mod lang_items;
+mod loader;
 mod sbi;
 mod stack_trace;
 mod sync;
@@ -21,9 +23,10 @@ pub fn main() -> ! {
     clear_bss();
     println!("hello world!");
     trap::init();
-    batch::init();
+    loader::load_apps();
+    batch::run_next_app()
 
-    batch::run_next_app();
+    // unreachable!()
 }
 
 #[unsafe(no_mangle)]

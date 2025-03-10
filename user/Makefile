@@ -16,8 +16,8 @@ endif
 
 .DEFAULT_GOAL := build
 
-elf:
-	cargo build $(MODE_ARG)
+elf: $(APPS)
+	python3 build.py
 
 binary: elf
 	$(foreach elf, $(ELFS), $(OBJCOPY) $(elf) --strip-all -O binary $(patsubst $(TARGET_DIR)/%, $(TARGET_DIR)/%.bin, $(elf));)

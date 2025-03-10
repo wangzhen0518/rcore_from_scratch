@@ -1,23 +1,20 @@
 #![no_std]
-#![feature(linkage)]
 
 #[macro_use] //TODO macro use 的作用是什么
 pub mod console;
 mod lang_items;
 mod syscall;
 
-#[unsafe(no_mangle)]
-#[unsafe(link_section = ".text.entry")]
-pub fn _start() -> ! {
-    clear_bss();
-    exit(main());
-    unreachable!("unreachable after sys_exit!");
+unsafe extern "C" {
+    fn main() -> i32;
 }
 
-#[linkage = "weak"] //TODO 这是什么意思，为什么会使用每个 bin 文件自己的 main
 #[unsafe(no_mangle)]
-fn main() -> i32 {
-    panic!("Cannot find main!");
+#[unsafe(link_section = ".text.entry")]
+pub extern "C" fn _start() -> ! {
+    clear_bss();
+    exit(unsafe { main() });
+    unreachable!("unreachable after sys_exit!");
 }
 
 fn clear_bss() {
