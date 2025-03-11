@@ -42,8 +42,6 @@ __alltraps:
     call trap_handler
 
 __restore:
-    mv sp, a0 # sp = a0
-
     # 读取 sstatus, sepc 和 sscratch
     ld t0, 32 * 8(sp)
     ld t1, 33 * 8(sp)

@@ -7,6 +7,10 @@ pub static KERNEL_STACK: [KernelStack; MAX_APP_NUM] =
     [KernelStack([0; KERNEL_STACK_SIZE]); MAX_APP_NUM];
 pub static USER_STACK: [UserStack; MAX_APP_NUM] = [UserStack([0; USER_STACK_SIZE]); MAX_APP_NUM];
 
+unsafe extern "C" {
+    fn __num_app();
+}
+
 #[repr(align(4096))]
 #[derive(Clone, Copy)]
 pub struct KernelStack([u8; KERNEL_STACK_SIZE]);
@@ -40,12 +44,14 @@ pub fn get_base_addr_i(app_id: usize) -> usize {
     APP_BASE_ADDRESS + APP_SIZE_LIMIT * app_id
 }
 
+#[inline(always)]
+pub fn get_app_num() -> usize {
+    unsafe { (__num_app as *const usize).read_volatile() }
+}
+
 pub fn load_apps() {
-    unsafe extern "C" {
-        fn __num_app();
-    }
     let num_app_ptr = __num_app as *const usize;
-    let num_app = unsafe { num_app_ptr.read_volatile() };
+    let num_app = get_app_num();
     assert!(
         num_app <= MAX_APP_NUM,
         "num_app is greater than MAX_APP_NUM={}",

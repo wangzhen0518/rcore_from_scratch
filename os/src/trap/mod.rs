@@ -4,16 +4,17 @@ use core::arch::global_asm;
 
 use riscv::register::{scause, stval, stvec};
 
-use crate::{batch::run_next_app, syscall::syscall};
+use crate::{syscall::syscall, task::exit_current_and_run_next};
 pub use context::TrapContext;
 
 global_asm!(include_str!("trap.S"));
 
-pub fn init() {
-    unsafe extern "C" {
-        fn __alltraps();
-    }
+unsafe extern "C" {
+    pub fn __alltraps();
+    pub fn __restore() -> !;
+}
 
+pub fn init() {
     let _x = __alltraps as usize;
     unsafe { stvec::write(__alltraps as usize, stvec::TrapMode::Direct) };
 }
@@ -46,7 +47,7 @@ pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
                 "[kernel] PageFault in application, bad addr: 0x{:016x}, bad instruction: 0x{:08x}, bad instruction addr: 0x{:016x}, kernel killed it.\n",
                 _stval, bad_instr, cx.sepc
             );
-            run_next_app();
+            exit_current_and_run_next();
         }
         scause::Trap::Exception(scause::Exception::IllegalInstruction) => {
             let bad_instr = read_instruction(cx.sepc);
@@ -54,7 +55,7 @@ pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
                 "[kernel] IllegalInstruction in application, stval: 0x{:016x}, bad instruction: 0x{:08x}, bad instruction addr: 0x{:016x}, kernel killed it.\n",
                 _stval, bad_instr, cx.sepc
             );
-            run_next_app();
+            exit_current_and_run_next();
         }
         _ => panic!(
             "[kernel] Unsupported trap {:?}, stval = 0x{:016x}!\n",
