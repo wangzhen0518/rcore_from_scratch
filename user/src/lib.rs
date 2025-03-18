@@ -1,9 +1,12 @@
 #![no_std]
 
+use task::TaskInfo;
+
 #[macro_use] //TODO macro use 的作用是什么
 pub mod console;
 mod lang_items;
 mod syscall;
+pub mod task;
 
 unsafe extern "C" {
     fn main() -> i32;
@@ -37,4 +40,12 @@ pub fn exit(exit_code: i32) -> isize {
 
 pub fn yield_() -> isize {
     syscall::sys_yield()
+}
+
+pub fn get_time() -> isize {
+    syscall::sys_get_time()
+}
+
+pub fn get_task_info(task_id: usize, task_info: &mut TaskInfo) {
+    syscall::sys_task_info(task_id, task_info);
 }

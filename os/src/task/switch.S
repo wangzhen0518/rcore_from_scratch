@@ -1,9 +1,18 @@
 .altmacro
 .macro SAVE_SN n
-    sd s\n, (\n+2)*8(a0)
+    sd s\n, (\n + 2) * 8(a0)
 .endm
+
 .macro LOAD_SN n
-    ld s\n, (\n+2)*8(a1)
+    ld s\n, (\n + 2) * 8(a1)
+.endm
+
+.macro SAVE_FN n
+    fsd fs\n, (\n + 14) * 8(a0)
+.endm
+
+.macro LOAD_FN n
+    fld fs\n, (\n + 14) * 8(a1)
 .endm
 
 .section .text
@@ -22,7 +31,13 @@ __switch:
     .set n, 0
     .rept 12
         SAVE_SN %n
-        .set n, n+1
+        .set n, n + 1
+    .endr
+
+    .set n, 0
+    .rept 12
+        SAVE_FN %n
+        .set n, n + 1
     .endr
     # 阶段 [3]
     # restore ra & s0-s11 of next execution
@@ -30,7 +45,13 @@ __switch:
     .set n, 0
     .rept 12
         LOAD_SN %n
-        .set n, n+1
+        .set n, n + 1
+    .endr
+
+    .set n, 0
+    .rept 12
+        LOAD_FN %n
+        .set n, n + 1
     .endr
     # restore kernel stack of next task
     ld sp, 8(a1)

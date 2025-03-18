@@ -12,3 +12,4 @@ overflow-checks = false # 关闭整数溢出检查
 lazy_static = { version = "1.5.0", features = ["spin_no_std"] }
 sbi-rt = { version = "0.0.3", features = ["legacy"] }
 riscv = "0.10.1"
+itertools = { version = "0.14.0", default-features = false }

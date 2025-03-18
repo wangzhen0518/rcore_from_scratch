@@ -1,10 +1,17 @@
-use riscv::register::sstatus::{self, Sstatus};
+use core::arch::asm;
 
 #[repr(C)]
 pub struct TrapContext {
     pub registers: [usize; 32],
-    pub sstatus: Sstatus,
+    pub fregisters: [f64; 32],
+    pub sstatus: usize,
     pub sepc: usize,
+}
+
+fn read_sstatus() -> usize {
+    let _sstatus: usize;
+    unsafe { asm!("csrr {0}, sstatus", out(reg) _sstatus) };
+    _sstatus
 }
 
 impl TrapContext {
@@ -13,11 +20,11 @@ impl TrapContext {
     }
 
     pub fn app_init_context(entry: usize, sp: usize) -> TrapContext {
-        unsafe { sstatus::set_spp(sstatus::SPP::User) };
-        let mut _sstatus = sstatus::read();
+        let mut _sstatus = read_sstatus() & !(1 << 8);
 
         let mut cx = TrapContext {
             registers: [0; 32],
+            fregisters: [0_f64; 32],
             sstatus: _sstatus,
             sepc: entry,
         };
