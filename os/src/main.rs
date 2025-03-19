@@ -1,5 +1,8 @@
 #![no_std]
 #![no_main]
+// #![feature(alloc_error_handler)]
+
+extern crate alloc;
 
 use core::arch::global_asm;
 
@@ -10,6 +13,7 @@ mod console;
 mod config;
 mod lang_items;
 mod loader;
+pub mod mm;
 mod sbi;
 mod stack_trace;
 mod sync;
@@ -22,8 +26,8 @@ global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("link_app.S"));
 
 unsafe extern "C" {
-    fn sbss();
-    fn ebss();
+    pub fn sbss();
+    pub fn ebss();
 }
 
 #[unsafe(no_mangle)]
@@ -39,10 +43,12 @@ fn enable_float() {
     unsafe { sstatus::set_fs(sstatus::FS::Initial) };
 }
 
+#[allow(dead_code)]
 fn set_sie() {
     unsafe { sstatus::set_sie() };
 }
 
+#[allow(dead_code)]
 fn clear_sie() {
     unsafe { sstatus::clear_sie() };
 }
@@ -56,7 +62,8 @@ pub fn main() -> ! {
     loader::load_apps();
     trap::enable_timer_interrupt();
     timer::set_next_trigger();
-    set_sie();
+    mm::init_heap();
+    mm::heap_allocator::heap_test();
 
     task::run_first_task()
 }

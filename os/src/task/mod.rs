@@ -134,8 +134,8 @@ impl TaskManager {
             // println!("task {} start", current);
             unsafe { __switch(current_task_cx_ptr, next_task_cx_ptr) }
         } else {
-            println!("All applications completed!");
-            println!("task switch time: {}us", get_switch_time_count());
+            println!("[kernel] All applications completed!");
+            println!("[kernel] Task switch time: {}us", get_switch_time_count());
             shutdown(false)
         }
     }
