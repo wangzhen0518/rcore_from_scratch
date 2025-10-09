@@ -35,7 +35,7 @@ impl Default for TaskInfo {
 
 impl Debug for TaskInfo {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        writeln!(
+        write!(
             f,
             r#"TaskInfo {{
     id: {},
@@ -47,11 +47,19 @@ impl Debug for TaskInfo {
             // self.time,
             self.time as f32 / 1_000_000_f32,
         )?;
+
+        let mut write_syscall = false;
         for info in &self.call {
             if info.times > 0 {
-                writeln!(f, "        {:?},", info)?;
+                write_syscall = true;
+                write!(f, "\n        {:?},", info)?;
             }
         }
-        writeln!(f, "    ],\n}}")
+
+        if write_syscall {
+            writeln!(f, "\n    ],\n}}")
+        } else {
+            writeln!(f, "],\n}}")
+        }
     }
 }
