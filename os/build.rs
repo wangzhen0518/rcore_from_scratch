@@ -32,16 +32,17 @@ __num_app:
     }
     writeln!(f, "    .quad app_{}_end", apps.len() - 1)?;
 
-    for (i, app) in apps.iter().enumerate() {
-        println!("app_{i}: {app}");
+    for (app_id, app) in apps.iter().enumerate() {
+        println!("app_{app_id}: {app}");
         writeln!(
             f,
             r#"
 .section .data
-.global app_{i}_start, app_{i}_end
-app_{i}_start:
-    .incbin "{TARGET_PATH}{app}.bin"
-app_{i}_end:"#
+.global app_{app_id}_start, app_{app_id}_end
+.align 3
+app_{app_id}_start:
+    .incbin "{TARGET_PATH}{app}"
+app_{app_id}_end:"#
         )?;
     }
 
